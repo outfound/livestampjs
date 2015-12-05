@@ -11,6 +11,7 @@
   var updateInterval = 1e3,
       paused = false,
       $livestamps = $([]),
+      isUTC = true,
 
   init = function() {
     livestampGlobal.resume();
@@ -24,7 +25,12 @@
     $el.removeAttr('data-livestamp')
       .removeData('livestamp');
 
-    timestamp = moment(timestamp);
+    if (isUTC) {
+      timestamp = moment.utc(timestamp);
+    } else {
+      timestamp = moment(timestamp);
+    }
+
     if (moment.isMoment(timestamp) && !isNaN(+timestamp)) {
       var newData = $.extend({ }, { 'original': $el.contents() }, oldData);
       newData.moment = moment(timestamp);
@@ -84,6 +90,13 @@
       if (interval === undefined)
         return updateInterval;
       updateInterval = interval;
+    },
+
+    utc: function () {
+      isUTC = true;
+    },
+    local: function () {
+      isUTC = false;
     }
   },
 
@@ -91,7 +104,12 @@
     add: function($el, timestamp) {
       if (typeof timestamp == 'number')
         timestamp *= 1e3;
-      timestamp = moment(timestamp);
+
+      if (isUTC) {
+          timestamp = moment.utc(timestamp);
+      } else {
+          timestamp = moment(timestamp);
+      }
 
       if (moment.isMoment(timestamp) && !isNaN(+timestamp)) {
         $el.each(function() {
